@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface CuentaBancariaRepository extends JpaRepository<CuentaBancaria, Long> {
+public interface ICuentaBancariaRepository extends JpaRepository<CuentaBancaria, Long> {
     //Buscar la cuenta por su número de cuenta de 10 digitos
     Optional<CuentaBancaria> findByNumeroCuenta(String numeroCuenta);
 }
