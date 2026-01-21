@@ -2,6 +2,7 @@ package com.sistemabancario.sistemaBancario.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -59,5 +60,17 @@ public class GlobalExceptionHandler {
                 null
         );
         return new ResponseEntity<>(errorRes, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String, Object>> handleJsonErrors(HttpMessageNotReadableException ex) {
+        Map<String, Object> respuesta = new HashMap<>();
+        respuesta.put("timestamp", LocalDateTime.now());
+        respuesta.put("mensajes", "Error en el formato del JSON");
+
+        String detalle = "Asegúrese de enviar los números (como la edad o saldo) sin comillas y que el formato sea correcto.";
+        respuesta.put("detalles", detalle);
+
+        return new ResponseEntity<>(respuesta, HttpStatus.BAD_REQUEST);
     }
 }
