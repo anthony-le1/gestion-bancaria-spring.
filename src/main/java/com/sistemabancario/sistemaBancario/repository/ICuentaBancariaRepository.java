@@ -13,5 +13,5 @@ public interface ICuentaBancariaRepository extends JpaRepository<CuentaBancaria,
     Optional<CuentaBancaria> findByNumeroCuenta(String numeroCuenta);
 
     boolean existsByNumeroCuenta(String numeroCuenta);
-    List<CuentaBancaria> findByNombreClienteIgnoreCase(String nombreCliente);
+    List<CuentaBancaria> findByCliente_NombreIgnoreCase(String nombre);
 }

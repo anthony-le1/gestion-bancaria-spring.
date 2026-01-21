@@ -13,7 +13,9 @@ public interface ICuentaBancariaService {
     CuentaBancariaDTO consultarSaldo(String numeroCuenta);
     void depositar(String numeroCuenta, BigDecimal monto);
     void retirar(String numeroCuenta, BigDecimal monto);
+
     List<CuentaBancariaDTO> listarTodas();
+
     void cambiarEstado(String numeroCuenta, String nuevoEstado);
     void eliminarCuenta(String numeroCuenta);
     @Transactional

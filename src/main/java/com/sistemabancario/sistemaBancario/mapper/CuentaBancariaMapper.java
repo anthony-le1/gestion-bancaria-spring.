@@ -12,12 +12,21 @@ public class CuentaBancariaMapper {
     public CuentaBancariaDTO toDTO(CuentaBancaria cuenta){
         if (cuenta == null) return null;
 
+
         CuentaBancariaDTO dto = new CuentaBancariaDTO();
         dto.setNumeroCuenta(cuenta.getNumeroCuenta());
         dto.setSaldo(cuenta.getSaldo());
         dto.setTipoCuenta(cuenta.getTipoCuenta());
         dto.setEstado(cuenta.getEstado());
         dto.setNombreCliente(cuenta.getCliente() !=null ? cuenta.getCliente().getNombre() : "Sin cliente");
+
+
+        if (cuenta.getCliente() != null) {
+            dto.setNombreCliente(cuenta.getCliente().getNombre());
+            dto.setEdad(cuenta.getCliente().getEdad());
+            dto.setDireccion(cuenta.getCliente().getDireccion());
+        }
+
         return dto;
     }
 

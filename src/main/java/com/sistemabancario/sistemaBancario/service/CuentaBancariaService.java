@@ -92,39 +92,49 @@ public class CuentaBancariaService implements ICuentaBancariaService{
     @Override
     public CuentaBancariaDTO crearCuenta(CuentaBancariaDTO cuentaDTO){
 
-        //Validar edad
+        // 1. Validar edad
         if (cuentaDTO.getEdad() < 18) {
             throw new DatosInvalidosException("El cliente debe ser mayor de edad.");
         }
 
-        //Generación de Número de Cuenta Aleatorio
-        if (cuentaDTO.getNumeroCuenta() == null || cuentaDTO.getNumeroCuenta().isEmpty()) {
-            cuentaDTO.setNumeroCuenta(generarNumeroAleatorio());
-        }
+        // 2. Generación de Número Único de cuenta
+        String numeroGenerado;
+        do {
+            numeroGenerado = generarNumeroAleatorio();
+        } while (cuentaBancariaRepository.existsByNumeroCuenta(numeroGenerado));
 
-        //Validaciones - Cuenta existente
-        if (cuentaBancariaRepository.existsByNumeroCuenta(cuentaDTO.getNumeroCuenta())) {
-            throw new ResourceNotFoundException("Error: El número de cuenta " + cuentaDTO.getNumeroCuenta() + " ya está asignado.");
-        }
-        boolean yaTieneEseTipo = cuentaBancariaRepository.findByNombreClienteIgnoreCase(cuentaDTO.getNombreCliente())
+        // Asignamos el numero de cuenta
+        cuentaDTO.setNumeroCuenta(numeroGenerado);
+
+        // 3. Validar si ya tiene el mismo numero de cuenta
+        boolean yaTieneEseTipo = cuentaBancariaRepository.findByCliente_NombreIgnoreCase(cuentaDTO.getNombreCliente())
                 .stream()
-                .anyMatch(c -> c.getTipoCuenta().equals(cuentaDTO.getTipoCuenta()));
+                .anyMatch(c -> c.getTipoCuenta().equalsIgnoreCase(cuentaDTO.getTipoCuenta()));
 
         if (yaTieneEseTipo) {
             throw new ResourceNotFoundException("El cliente " + cuentaDTO.getNombreCliente() +
-                    " ya posee una cuenta de tipo " + cuentaDTO.getTipoCuenta() + ". Solo puede abrir una de un tipo diferente.");
+                    " ya posee una cuenta de tipo " + cuentaDTO.getTipoCuenta());
         }
-        //Convertimos el DTO que viene del frontend a entidad para que JPA lo entienda
+
+        // 4. Mapeo, Guardado y Retorno
         CuentaBancaria entidad = cuentaBancariaMapper.toEntity(cuentaDTO);
-        //Aqui se guarda en la base de datos
         CuentaBancaria guardada = cuentaBancariaRepository.save(entidad);
-        //Convertimos la entidad guardada de vuelta al DTO para responderle al FrontEnd
-        return  cuentaBancariaMapper.toDTO(guardada);
+
+        return cuentaBancariaMapper.toDTO(guardada);
     }
 
     //Generar cuenta aleatoria
     private String generarNumeroAleatorio() {
-        return String.valueOf((long) (Math.random() * 9_000_000_000L) + 1_000_000_000L);
+        String numero;
+        boolean existe;
+        do {
+            // Genera los 10 dígitos
+            numero = String.valueOf((long) (Math.random() * 9_000_000_000L) + 1_000_000_000L);
+            // Pregunta al repositorio si ese número ya lo tiene alguien más
+            existe = cuentaBancariaRepository.existsByNumeroCuenta(numero);
+        } while (existe); // Si ya existe, vuelve a generar otro diferente
+
+        return numero;
     }
 
     @Override
@@ -132,7 +142,7 @@ public class CuentaBancariaService implements ICuentaBancariaService{
         //Buscamos la entidad
         CuentaBancaria cuenta = cuentaBancariaRepository.findByNumeroCuenta(numeroCuenta).orElseThrow(() -> new ResourceNotFoundException("Cuenta" + numeroCuenta + " no existe."));
         return   cuentaBancariaMapper.toDTO(cuenta);
-    }{}
+    }
 
     @Override
     public List<CuentaBancariaDTO> listarTodas(){

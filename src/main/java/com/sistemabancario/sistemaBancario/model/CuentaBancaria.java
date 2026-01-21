@@ -27,7 +27,7 @@ public class CuentaBancaria {
     private String sucursal;
     private boolean tieneTarjeta;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "cliente_id")
     private Cliente cliente;
 }
