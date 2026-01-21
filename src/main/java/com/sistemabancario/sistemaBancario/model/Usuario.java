@@ -15,7 +15,9 @@ public abstract class Usuario {
     private Long id;
     private String nombre;
     private String apellido;
+    private int edad;
     private String cedula;
+    private String direccion;
     private String email;
     private String password;
     private String rol; // "ADMIN" o "CLIENTE"

@@ -1,6 +1,7 @@
 package com.sistemabancario.sistemaBancario.mapper;
 
 import com.sistemabancario.sistemaBancario.dto.CuentaBancariaDTO;
+import com.sistemabancario.sistemaBancario.model.Cliente;
 import com.sistemabancario.sistemaBancario.model.CuentaBancaria;
 import org.springframework.stereotype.Component;
 
@@ -25,6 +26,12 @@ public class CuentaBancariaMapper {
         if (dto == null) return null;
 
         CuentaBancaria cuenta = new CuentaBancaria();
+        Cliente cliente = new Cliente();
+
+        cliente.setNombre(dto.getNombreCliente());
+        cliente.setEdad(dto.getEdad());
+        cliente.setDireccion(dto.getDireccion());
+        cuenta.setCliente(cliente);
         cuenta.setNumeroCuenta(dto.getNumeroCuenta());
         cuenta.setSaldo(dto.getSaldo());
         cuenta.setTipoCuenta(dto.getTipoCuenta());

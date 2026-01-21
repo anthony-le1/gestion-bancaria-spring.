@@ -92,12 +92,39 @@ public class CuentaBancariaService implements ICuentaBancariaService{
     @Override
     public CuentaBancariaDTO crearCuenta(CuentaBancariaDTO cuentaDTO){
 
+        //Validar edad
+        if (cuentaDTO.getEdad() < 18) {
+            throw new DatosInvalidosException("El cliente debe ser mayor de edad.");
+        }
+
+        //Generación de Número de Cuenta Aleatorio
+        if (cuentaDTO.getNumeroCuenta() == null || cuentaDTO.getNumeroCuenta().isEmpty()) {
+            cuentaDTO.setNumeroCuenta(generarNumeroAleatorio());
+        }
+
+        //Validaciones - Cuenta existente
+        if (cuentaBancariaRepository.existsByNumeroCuenta(cuentaDTO.getNumeroCuenta())) {
+            throw new ResourceNotFoundException("Error: El número de cuenta " + cuentaDTO.getNumeroCuenta() + " ya está asignado.");
+        }
+        boolean yaTieneEseTipo = cuentaBancariaRepository.findByNombreClienteIgnoreCase(cuentaDTO.getNombreCliente())
+                .stream()
+                .anyMatch(c -> c.getTipoCuenta().equals(cuentaDTO.getTipoCuenta()));
+
+        if (yaTieneEseTipo) {
+            throw new ResourceNotFoundException("El cliente " + cuentaDTO.getNombreCliente() +
+                    " ya posee una cuenta de tipo " + cuentaDTO.getTipoCuenta() + ". Solo puede abrir una de un tipo diferente.");
+        }
         //Convertimos el DTO que viene del frontend a entidad para que JPA lo entienda
         CuentaBancaria entidad = cuentaBancariaMapper.toEntity(cuentaDTO);
         //Aqui se guarda en la base de datos
         CuentaBancaria guardada = cuentaBancariaRepository.save(entidad);
         //Convertimos la entidad guardada de vuelta al DTO para responderle al FrontEnd
         return  cuentaBancariaMapper.toDTO(guardada);
+    }
+
+    //Generar cuenta aleatoria
+    private String generarNumeroAleatorio() {
+        return String.valueOf((long) (Math.random() * 9_000_000_000L) + 1_000_000_000L);
     }
 
     @Override
@@ -114,6 +141,29 @@ public class CuentaBancariaService implements ICuentaBancariaService{
 
         //Convertimos la lista de entidades a lista de DTO usando el mapper
         return cuentas.stream().map(cuentaBancariaMapper::toDTO).toList();
+    }
+
+    @Override
+    public void cambiarEstado(String numeroCuenta, String nuevoEstado) {
+        //Buscamos la cuenta
+        CuentaBancaria cuenta = cuentaBancariaRepository.findByNumeroCuenta(numeroCuenta).orElseThrow(() -> new ResourceNotFoundException("Cuenta" + numeroCuenta + " no existe."));
+
+        //Validamos que el estado sea valido
+        if(!nuevoEstado.equalsIgnoreCase("ACTIVA") && !nuevoEstado.equalsIgnoreCase("INACTIVA")){
+            throw new DatosInvalidosException("La cuenta debe ser ACTIVA o INACTIVA");
+        }
+
+        //Actualizamos y guardamos
+        cuenta.setEstado(nuevoEstado.toUpperCase());
+        cuentaBancariaRepository.save(cuenta);
+    }
+
+    @Override
+    public void eliminarCuenta(String numeroCuenta) {
+        //Verificamos si la cuenta existe antes de borrarla
+        CuentaBancaria cuenta = cuentaBancariaRepository.findByNumeroCuenta(numeroCuenta).orElseThrow(() -> new ResourceNotFoundException("No se puede eliminar: Cuenta no encontrada"));
+
+        cuentaBancariaRepository.delete(cuenta);
     }
 
 }
