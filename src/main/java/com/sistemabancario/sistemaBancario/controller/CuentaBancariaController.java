@@ -2,12 +2,16 @@ package com.sistemabancario.sistemaBancario.controller;
 
 import com.sistemabancario.sistemaBancario.dto.CuentaBancariaDTO;
 import com.sistemabancario.sistemaBancario.service.ICuentaBancariaService;
+import com.sistemabancario.sistemaBancario.service.estadoCuentaPDF;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +23,9 @@ import java.util.Map;
 public class CuentaBancariaController {
     //Inyeccion de dependencias
     private final ICuentaBancariaService cuentaBancariaService;
+
+    @Autowired
+    private estadoCuentaPDF estadoCuentaPDF;
 
     //Endpoint para consultar sald o (GET)
     @GetMapping("/saldo/{numeroCuenta}")
@@ -48,23 +55,28 @@ public class CuentaBancariaController {
     }
 
     //Endpoint para que el admin. cree una nueva cuenta
-    @PostMapping("/crear")
+    @PostMapping
     public ResponseEntity <CuentaBancariaDTO> crearCuenta(@Valid @RequestBody CuentaBancariaDTO cuentaDTO) {
         CuentaBancariaDTO nuevaCuenta =  cuentaBancariaService.crearCuenta(cuentaDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(nuevaCuenta);
     }
 
-    @GetMapping("/todas")
+    @GetMapping
     public ResponseEntity<List<CuentaBancariaDTO>> listarCuentas() {
         return ResponseEntity.ok(cuentaBancariaService.listarTodas());
     }
 
     //EndPoint para activar o desactivar una cuenta.
     @PatchMapping("/{numeroCuenta}/estado")
-    public ResponseEntity<String> cambiarEstado(@Valid @PathVariable String numeroCuenta, @RequestBody Map<String, Object> payload) {
-        String estado = payload.get("estado").toString();
-        cuentaBancariaService.cambiarEstado(numeroCuenta, estado);
-        return ResponseEntity.ok("Estado de la cuenta actualizado a: " + estado);
+    public ResponseEntity<String> cambiarEstado(@PathVariable String numeroCuenta, @RequestParam String nuevoEstado) {
+        cuentaBancariaService.cambiarEstado(numeroCuenta, nuevoEstado);
+        return ResponseEntity.ok("Estado actualizado");
+    }
+
+    @PutMapping("/{numeroCuenta}")
+    public ResponseEntity<CuentaBancariaDTO> actualizarDatos(@PathVariable String numeroCuenta, @RequestBody CuentaBancariaDTO datosActualizados) {
+        CuentaBancariaDTO cuentaEditada = cuentaBancariaService.actualizarDatosPersonales(numeroCuenta, datosActualizados);
+        return ResponseEntity.ok(cuentaEditada);
     }
 
     @DeleteMapping("/{numeroCuenta}")
@@ -72,5 +84,42 @@ public class CuentaBancariaController {
         cuentaBancariaService.eliminarCuenta(numeroCuenta);
         //Aqui implemnetamos un mensaje 204 para mostrar un DELETE exitoso
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
+        String cedula = credentials.get("cedula");
+        String password = credentials.get("password");
+
+        //Admin Quemado por seguridad
+        if ("9999999999".equals(cedula) && "admin123".equals(password)) {
+            return ResponseEntity.ok(Map.of(
+                    "rol", "ADMIN",
+                    "nombre", "ADMINISTRADOR CENTRAL"
+            ));
+        }
+
+        CuentaBancariaDTO cliente = cuentaBancariaService.autenticarCliente(cedula, password);
+
+        if (cliente != null) {
+            return ResponseEntity.ok(cliente);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciales incorrectas");
+        }
+    }
+
+    @Autowired
+    private estadoCuentaPDF pdfService;
+    @GetMapping("/exportar-pdf/{numeroCuenta}")
+    public void descargarPdf(HttpServletResponse response, @PathVariable String numeroCuenta) throws IOException {
+        response.setContentType("application/pdf");
+
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment; filename=Estado_Cuenta_" + numeroCuenta + "pdf.";
+        response.setHeader(headerKey, headerValue);
+
+        CuentaBancariaDTO cuenta = cuentaBancariaService.consultarSaldo(numeroCuenta);
+
+        pdfService.exportar(response, cuenta.getNombreCliente(), cuenta.getNumeroCuenta(), cuenta.getSaldo());
     }
 }

@@ -25,6 +25,9 @@ public class CuentaBancariaMapper {
             dto.setNombreCliente(cuenta.getCliente().getNombre());
             dto.setEdad(cuenta.getCliente().getEdad());
             dto.setDireccion(cuenta.getCliente().getDireccion());
+            dto.setTelefono(cuenta.getCliente().getTelefono());
+            dto.setCorreo(cuenta.getCliente().getCorreo());
+            dto.setCedula(cuenta.getCliente().getCedula());
         }
 
         return dto;
@@ -45,6 +48,9 @@ public class CuentaBancariaMapper {
         cuenta.setSaldo(dto.getSaldo());
         cuenta.setTipoCuenta(dto.getTipoCuenta());
         cuenta.setEstado(dto.getEstado());
+        cliente.setTelefono(dto.getTelefono());
+        cliente.setCorreo(dto.getCorreo());
+        cliente.setCedula(dto.getCedula());
 
         return  cuenta;
     }

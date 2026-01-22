@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>THE BANK | Nueva Cuenta</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root { --bank-blue: #004a8e; --light-gray: #f8f9fa; }
+        body { background-color: #e9ecef; font-family: 'Segoe UI', sans-serif; padding: 40px 0; }
+        .paper-container {
+            background: white; padding: 50px; max-width: 900px; margin: auto;
+            border-top: 8px solid var(--bank-blue); box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .header-bank { background: var(--bank-blue); color: white; padding: 20px; margin-bottom: 20px; }
+        .section-title {
+            background: var(--light-gray); color: var(--bank-blue);
+            padding: 5px 15px; font-weight: bold; border-left: 5px solid var(--bank-blue);
+            margin: 20px 0;
+        }
+        .form-control { border-radius: 0; background: #fdfdfd; }
+        .btn-authorize { background: var(--bank-blue); color: white; border-radius: 0; font-weight: bold; width: 100%; padding: 15px; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+<div class="paper-container">
+    <div class="header-bank d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center">
+            <img src="logo_bank.png" style="height: 60px; margin-right: 20px">
+            <div><h2 class="mb-0">ACCOUNT APPLICATION</h2><small>Official Enrollment</small></div>
+        </div>
+        <div class="text-end"><h4>THE BANK</h4></div>
+    </div>
+
+    <form id="formRegistro">
+        <div class="section-title">1. INFORMACIÓN PERSONAL</div>
+        <div class="row g-3">
+            <div class="col-md-8">
+                <label class="small fw-bold">NOMBRE COMPLETO</label>
+                <input type="text" id="nombreCliente" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+                <label class="small fw-bold">CÉDULA (USUARIO)</label>
+                <input type="text" id="cedula" class="form-control" required>
+            </div>
+        </div>
+
+        <div class="section-title">2. DETALLES DE CUENTA Y SEGURIDAD</div>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="small fw-bold">TIPO DE CUENTA</label>
+                <select id="tipoCuenta" class="form-select">
+                    <option value="AHORROS">Ahorros</option>
+                    <option value="CORRIENTE">Corriente</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="small fw-bold">DEPÓSITO INICIAL ($)</label>
+                <input type="number" id="saldoInicial" class="form-control" min="10" required>
+            </div>
+            <div class="col-md-6">
+                <label class="small fw-bold">CREAR CONTRASEÑA</label>
+                <input type="password" id="password" class="form-control" placeholder="Mínimo 8 caracteres" required>
+            </div>
+            <div class="col-md-6">
+                <label class="small fw-bold">CONFIRMAR CONTRASEÑA</label>
+                <input type="password" id="confirmPassword" class="form-control" required>
+            </div>
+        </div>
+
+        <p class="small text-muted mt-4 italic">Al hacer clic en el botón inferior, acepto que los datos proporcionados son veraces y autorizo la apertura de mi cuenta en THE BANK.</p>
+        <button type="submit" class="btn btn-authorize mt-3">CONFIRMAR Y CREAR CUENTA</button>
+    </form>
+</div>
+
+<script>
+    document.getElementById('formRegistro').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const pass = document.getElementById('password').value;
+        const confirm = document.getElementById('confirmPassword').value;
+
+        // Validación de contraseñas con SweetAlert
+        if(pass !== confirm) {
+            return Swal.fire({
+                icon: 'error',
+                title: 'Error de Seguridad',
+                text: 'Las contraseñas no coinciden. Por favor, verifica.',
+                confirmButtonColor: '#004a8e'
+            });
+        }
+
+        const data = {
+            nombreCliente: document.getElementById('nombreCliente').value,
+            cedula: document.getElementById('cedula').value,
+            tipoCuenta: document.getElementById('tipoCuenta').value,
+            saldoInicial: parseFloat(document.getElementById('saldoInicial').value),
+            password: pass
+        };
+
+        try {
+            // ESTO ES EL FETCH: Envía los datos a tu Spring Boot
+            const res = await fetch('http://localhost:8080/api/cuentas', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+
+            if(res.ok) {
+                // Alerta de éxito profesional
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Cuenta Creada!',
+                    text: 'Tu solicitud en THE BANK ha sido procesada con éxito. Ya puedes iniciar sesión.',
+                    confirmButtonText: 'Aceptar',
+                    confirmButtonColor: '#004a8e'
+                }).then(() => {
+                    window.close(); // Se cierra la pestaña solo cuando el usuario da clic en Aceptar
+                });
+            } else {
+                Swal.fire('Error', 'No se pudo conectar con el servidor', 'error');
+            }
+        } catch (error) {
+            Swal.fire('Error', 'El servidor de Spring Boot no está encendido', 'error');
+        }
+    });
+</script>
+</body>
+</html>

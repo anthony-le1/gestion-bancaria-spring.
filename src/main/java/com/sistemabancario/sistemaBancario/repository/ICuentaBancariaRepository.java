@@ -1,5 +1,6 @@
 package com.sistemabancario.sistemaBancario.repository;
 
+import aQute.bnd.annotation.plugin.InternalPluginNamespace;
 import com.sistemabancario.sistemaBancario.model.CuentaBancaria;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -14,4 +15,6 @@ public interface ICuentaBancariaRepository extends JpaRepository<CuentaBancaria,
 
     boolean existsByNumeroCuenta(String numeroCuenta);
     List<CuentaBancaria> findByCliente_NombreIgnoreCase(String nombre);
+
+    Optional<CuentaBancaria> findByClienteCedula(String cedula);
 }

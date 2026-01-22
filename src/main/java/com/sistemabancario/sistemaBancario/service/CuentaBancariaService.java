@@ -6,6 +6,7 @@ import com.sistemabancario.sistemaBancario.exceptions.DatosInvalidosException;
 import com.sistemabancario.sistemaBancario.exceptions.ResourceNotFoundException;
 import com.sistemabancario.sistemaBancario.exceptions.SaldoInsuficienteException;
 import com.sistemabancario.sistemaBancario.mapper.CuentaBancariaMapper;
+import com.sistemabancario.sistemaBancario.model.Cliente;
 import com.sistemabancario.sistemaBancario.model.CuentaBancaria;
 import com.sistemabancario.sistemaBancario.repository.ICuentaBancariaRepository;
 import lombok.RequiredArgsConstructor;
@@ -90,6 +91,42 @@ public class CuentaBancariaService implements ICuentaBancariaService{
     }
 
     @Override
+    public CuentaBancariaDTO actualizarDatosPersonales(String numeroCuenta, CuentaBancariaDTO dto) {
+        // 1. Buscamos la cuenta
+        CuentaBancaria cuentaExistente = cuentaBancariaRepository.findByNumeroCuenta(numeroCuenta)
+                .orElseThrow(() -> new RuntimeException("Cuenta no encontrada"));
+
+        //Datos que el Admin puede corregir
+        if (cuentaExistente.getCliente() != null) {
+            Cliente c = cuentaExistente.getCliente();
+
+            // CORRECCIONES PERMITIDAS
+            c.setNombre(dto.getNombreCliente());
+            c.setDireccion(dto.getDireccion());
+            c.setTelefono(dto.getTelefono());
+            c.setCorreo(dto.getCorreo());
+
+        }
+
+        CuentaBancaria cuentaActualizada = cuentaBancariaRepository.save(cuentaExistente);
+        return cuentaBancariaMapper.toDTO(cuentaActualizada);
+    }
+
+    @Override
+    public CuentaBancariaDTO autenticarCliente(String cedula, String password) {
+        // Buscamos al cliente por cédula (debes tener este método en tu repo)
+        return cuentaBancariaRepository.findByClienteCedula(cedula)
+                .filter(cuenta -> cuenta.getPassword().equals(password)) // Verificamos clave
+                .map(cuenta -> {
+                    CuentaBancariaDTO dto = cuentaBancariaMapper.toDTO(cuenta);
+                    dto.setRol("CLIENTE"); // Le asignamos el rol para el frontend
+                    return dto;
+                })
+                .orElse(null); // Si no existe o la clave falla, devuelve null
+    }
+
+
+    @Override
     public CuentaBancariaDTO crearCuenta(CuentaBancariaDTO cuentaDTO){
 
         // 1. Validar edad
@@ -168,6 +205,8 @@ public class CuentaBancariaService implements ICuentaBancariaService{
         cuentaBancariaRepository.save(cuenta);
     }
 
+
+
     @Override
     public void eliminarCuenta(String numeroCuenta) {
         //Verificamos si la cuenta existe antes de borrarla
@@ -175,5 +214,7 @@ public class CuentaBancariaService implements ICuentaBancariaService{
 
         cuentaBancariaRepository.delete(cuenta);
     }
+
+
 
 }

@@ -34,5 +34,15 @@ public class CuentaBancariaDTO {
     private String tipoCuenta; //Ahorros, corriente
     private String estado; //Activa, Inactiva
 
+    @NotBlank(message = "El numero telefònico es obligatorio")
+    private String telefono;
 
+    @NotBlank(message = "El correo electrònico es obligatorio")
+    public String correo;
+
+    @NotBlank(message = "La cèdula es obligatoria")
+    public String cedula;
+
+    @NotBlank(message = "El rol es obligatorio")
+    public String rol;
 }

@@ -9,21 +9,28 @@ import java.time.LocalDate;
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "cuentas")
 public class CuentaBancaria {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(unique = true)
     private Long id;
+    @Column(name = "numero_cuenta")
     private String numeroCuenta;
     private String tipoCuenta; //(Ahorro/Corriente)
     private BigDecimal saldo;
     private LocalDate fechaApertura;
     private String estado; //(Activa/Bloqueada)
     private String moneda;
+    private String Direccion;
+    private String Telefono;
     private BigDecimal limiteDiario;
     private Double tasaInteres;
     private String pin;
+    private String Correo;
+    @Column(name = "password")
+    private String password;
     private String sucursal;
     private boolean tieneTarjeta;
 

@@ -20,4 +20,6 @@ public interface ICuentaBancariaService {
     void eliminarCuenta(String numeroCuenta);
     @Transactional
     void transferir(String cuentaOrigen, String cuentaDestino, BigDecimal monto);
+    CuentaBancariaDTO actualizarDatosPersonales(String numeroCuenta, CuentaBancariaDTO dto);
+    CuentaBancariaDTO autenticarCliente(String cedula, String password);
 }

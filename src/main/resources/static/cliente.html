@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>THE BANK | Mi Portal Financiero</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root { --bank-blue: #002d5a; --bank-success: #2e7d32; }
+        body { background-color: #f0f2f5; font-family: 'Segoe UI', sans-serif; }
+
+        /* Header Personalizado */
+        .sidebar-brand { background: var(--bank-blue); color: white; padding: 20px; text-align: center; }
+        .balance-card {
+            background: white; border-radius: 15px; padding: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-left: 8px solid var(--bank-blue);
+        }
+
+        .nav-link-custom {
+            color: #555; font-weight: 600; padding: 12px 20px;
+            display: block; text-decoration: none; transition: 0.3s;
+        }
+        .nav-link-custom:hover { background: #e2e6ea; color: var(--bank-blue); }
+        .nav-link-custom.active { background: var(--bank-blue); color: white; }
+
+        .btn-action { border-radius: 8px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* Estilo para las transacciones */
+        .transaction-item { border-bottom: 1px solid #eee; padding: 15px 0; }
+        .amount-pos { color: var(--bank-success); font-weight: bold; }
+        .amount-neg { color: #d32f2f; font-weight: bold; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-2 d-none d-md-block bg-white vh-100 p-0 shadow-sm">
+            <div class="sidebar-brand">
+                <img src="logo_bank.png" height="50" style="filter: brightness(0) invert(1);">
+                <h5 class="mt-2 mb-0">THE BANK</h5>
+            </div>
+            <nav class="mt-4">
+                <a href="#" class="nav-link-custom active"><i class="bi bi-house-door me-2"></i> Posición Consolidada</a>
+                <a href="#" class="nav-link-custom" onclick="location.href='index.html'"><i class="bi bi-box-arrow-left me-2"></i> Cerrar Sesión</a>
+            </nav>
+        </div>
+
+        <div class="col-md-10 p-5">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold">Bienvenido, <span id="nombreUsuario" class="text-primary">Cargando...</span></h2>
+                <button class="btn btn-outline-dark" onclick="downloadPDF()">
+                    <i class="bi bi-file-earmark-pdf"></i> ESTADO DE CUENTA
+                </button>
+            </div>
+
+            <div class="row mb-5">
+                <div class="col-md-6">
+                    <div class="balance-card">
+                        <small class="text-muted fw-bold">SALDO DISPONIBLE</small>
+                        <h1 class="display-4 fw-bold" style="color: var(--bank-blue)">$ <span id="saldoActual">0.00</span></h1>
+                        <p class="mb-0 text-muted">Cuenta No: <span id="numCuenta" class="fw-bold">---</span></p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="bg-white p-4 rounded-4 shadow-sm h-100">
+                        <h5 class="fw-bold mb-3">GESTIONAR DINERO</h5>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <button class="btn btn-primary w-100 btn-action py-3" onclick="showTransferModal()">
+                                    <i class="bi bi-send"></i> Transferir
+                                </button>
+                            </div>
+                            <div class="col-6">
+                                <button class="btn btn-success w-100 btn-action py-3" onclick="showDepositModal()">
+                                    <i class="bi bi-plus-circle"></i> Depositar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-4 shadow-sm">
+                <h5 class="fw-bold mb-4">ÚLTIMOS MOVIMIENTOS</h5>
+                <div id="listaMovimientos">
+                    <div class="transaction-item d-flex justify-content-between">
+                        <span>Apertura de Cuenta</span>
+                        <span class="amount-pos">+$ <span id="saldoApertura">0.00</span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let numeroCuentaActiva = "";
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        await cargarDatosCliente();
+    });
+
+    async function cargarDatosCliente() {
+        // Leemos el número de cuenta que guardamos en el Login
+        const num = localStorage.getItem('numeroCuentaActiva');
+
+        if(!num) {
+            window.location.href = 'index.html'; // Si no hay sesión, al inicio
+            return;
+        }
+
+        const res = await fetch(`http://localhost:8080/api/cuentas/saldo/${num}`);
+        const c = await res.json();
+
+        document.getElementById('nombreUsuario').innerText = c.nombreCliente;
+        document.getElementById('saldoActual').innerText = c.saldo.toFixed(2);
+        document.getElementById('numCuenta').innerText = c.numeroCuenta;
+        document.getElementById('saldoApertura').innerText = c.saldo.toFixed(2);
+        numeroCuentaActiva = c.numeroCuenta;
+    }
+
+    function downloadPDF() {
+        window.location.href = `http://localhost:8080/exportar-pdf/${numeroCuentaActiva}`;
+    }
+    function cerrarSesion() {
+        Swal.fire({
+            title: '¿Cerrar sesión?',
+            text: "Tendrás que ingresar tus credenciales nuevamente.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#002d5a',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, salir',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Limpia toda la información guardada del usuario
+                localStorage.clear();
+                // Redirige al login o inicio
+                window.location.href = 'index.html';
+            }
+        });
+    }
+
+    // Funciones para Depósitos y Transferencias
+    async function showDepositModal() {
+        const { value: monto } = await Swal.fire({
+            title: 'Realizar Depósito',
+            input: 'number',
+            inputLabel: 'Ingrese el monto a depositar',
+            inputPlaceholder: '0.00',
+            showCancelButton: true,
+            confirmButtonColor: '#2e7d32',
+            cancelButtonText: 'Cancelar',
+            inputValidator: (value) => {
+                if (!value || value <= 0) {
+                    return '¡El monto debe ser mayor a cero!';
+                }
+            }
+        });
+
+        if (monto) {
+            try {
+                //@PostMapping("/deposito")
+                const payload = {
+                    numeroCuenta: numeroCuentaActiva,
+                    monto: parseFloat(monto)
+                };
+
+                const res = await fetch('http://localhost:8080/api/cuentas/deposito', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Depósito Exitoso',
+                        text: `Se han acreditado $${monto} a tu cuenta.`,
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        cargarDatosCliente(); // Actualiza el saldo en pantalla sin recargar toda la página
+                    });
+                } else {
+                    const errorText = await res.text();
+                    Swal.fire('Error', errorText || 'No se pudo procesar el depósito', 'error');
+                }
+            } catch (error) {
+                Swal.fire('Error', 'No hay conexión con el servidor', 'error');
+            }
+        }
+    }
+
+
+    async function showTransferModal() {
+        const { value: formValues } = await Swal.fire({
+            title: 'Transferencia Bancaria',
+            html:
+                '<label class="small fw-bold">NRO. CUENTA DESTINO</label>' +
+                '<input id="swal-input1" class="swal2-input" placeholder="Ej: 1234567890">' +
+                '<label class="small fw-bold">MONTO A ENVIAR ($)</label>' +
+                '<input id="swal-input2" class="swal2-input" type="number" placeholder="0.00">',
+            focusConfirm: false,
+            showCancelButton: true,
+            confirmButtonText: 'Transferir',
+            confirmButtonColor: '#002d5a',
+            preConfirm: () => {
+                return {
+                    cuentaDestino: document.getElementById('swal-input1').value,
+                    monto: document.getElementById('swal-input2').value
+                }
+            }
+        });
+
+        if (formValues && formValues.cuentaDestino && formValues.monto) {
+            try {
+                const payload = {
+                    cuentaOrigen: numeroCuentaActiva,
+                    cuentaDestino: formValues.cuentaDestino,
+                    monto: parseFloat(formValues.monto)
+                };
+
+                const res = await fetch('http://localhost:8080/api/cuentas/transferir', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    Swal.fire('¡Éxito!', `Transferencia de $${formValues.monto} realizada.`, 'success')
+                        .then(() => cargarDatosCliente()); // Refresca saldo en pantalla
+                } else {
+                    const msg = await res.text();
+                    Swal.fire('Error', msg || 'Fondos insuficientes o cuenta destino inválida', 'error');
+                }
+            } catch (error) {
+                Swal.fire('Error', 'No se pudo conectar con el servicio de transferencias', 'error');
+            }
+        }
+    }
+</script>
+</body>
+</html>
