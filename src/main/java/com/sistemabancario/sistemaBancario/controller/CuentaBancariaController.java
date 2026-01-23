@@ -119,7 +119,7 @@ public class    CuentaBancariaController {
         String headerValue = "attachment; filename=Estado_Cuenta_" + numeroCuenta + ".pdf";
         response.setHeader(headerKey, headerValue);
 
-        // Pasamos estado real  al servicio
+        // Pasamos el estado real al servicio
         pdfService.exportar(response, cuenta.getNombreCliente(), cuenta.getNumeroCuenta(), cuenta.getSaldo(), cuenta.getEstado());
     }
 }
