@@ -122,7 +122,13 @@
     }
 
     function downloadPDF() {
-        window.location.href = `http://localhost:8080/exportar-pdf/${numeroCuentaActiva}`;
+        if(!numeroCuentaActiva) {
+            Swal.fire('Error', 'No se encontró el número de cuenta', 'error');
+            return;
+        }
+        const url = `http://localhost:8080/api/cuentas/exportar-pdf/${numeroCuentaActiva}`;
+        console.log("Descargando desde:", url);
+        window.open(url, '_blank');
     }
     function cerrarSesion() {
         Swal.fire({

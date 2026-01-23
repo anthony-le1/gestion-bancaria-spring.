@@ -20,7 +20,7 @@ import java.util.Map;
 @RequestMapping("/api/cuentas")
 @RequiredArgsConstructor //Inyeccion de dependencias por constructor via lombook
 @CrossOrigin(origins = "*") //Permite que React (frontend) de conecte al BackEnd
-public class CuentaBancariaController {
+public class    CuentaBancariaController {
     //Inyeccion de dependencias
     private final ICuentaBancariaService cuentaBancariaService;
 
@@ -113,13 +113,13 @@ public class CuentaBancariaController {
     @GetMapping("/exportar-pdf/{numeroCuenta}")
     public void descargarPdf(HttpServletResponse response, @PathVariable String numeroCuenta) throws IOException {
         response.setContentType("application/pdf");
-
-        String headerKey = "Content-Disposition";
-        String headerValue = "attachment; filename=Estado_Cuenta_" + numeroCuenta + "pdf.";
-        response.setHeader(headerKey, headerValue);
-
         CuentaBancariaDTO cuenta = cuentaBancariaService.consultarSaldo(numeroCuenta);
 
-        pdfService.exportar(response, cuenta.getNombreCliente(), cuenta.getNumeroCuenta(), cuenta.getSaldo());
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment; filename=Estado_Cuenta_" + numeroCuenta + ".pdf";
+        response.setHeader(headerKey, headerValue);
+
+        // Pasamos estado real  al servicio
+        pdfService.exportar(response, cuenta.getNombreCliente(), cuenta.getNumeroCuenta(), cuenta.getSaldo(), cuenta.getEstado());
     }
 }

@@ -36,13 +36,29 @@
     <form id="formRegistro">
         <div class="section-title">1. INFORMACIÓN PERSONAL</div>
         <div class="row g-3">
-            <div class="col-md-8">
+            <div class="col-md-6">
                 <label class="small fw-bold">NOMBRE COMPLETO</label>
-                <input type="text" id="nombreCliente" class="form-control" required>
+                <input type="text" id="nombreCliente" class="form-control" placeholder="Ej: Anthony Ledesma" required>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <label class="small fw-bold">CÉDULA (USUARIO)</label>
                 <input type="text" id="cedula" class="form-control" required>
+            </div>
+            <div class="col-md-3">
+                <label class="small fw-bold">EDAD</label>
+                <input type="number" id="edad" class="form-control" min="18" value="18" required>
+            </div>
+            <div class="col-md-6">
+                <label class="small fw-bold">CORREO ELECTRÓNICO</label>
+                <input type="email" id="correo" class="form-control" placeholder="nombre@ejemplo.com" required>
+            </div>
+            <div class="col-md-6">
+                <label class="small fw-bold">TELÉFONO</label>
+                <input type="text" id="telefono" class="form-control" placeholder="0999999999" required>
+            </div>
+            <div class="col-md-12">
+                <label class="small fw-bold">DIRECCIÓN DOMICILIARIA</label>
+                <input type="text" id="direccion" class="form-control" required>
             </div>
         </div>
 
@@ -94,13 +110,18 @@
         const data = {
             nombreCliente: document.getElementById('nombreCliente').value,
             cedula: document.getElementById('cedula').value,
+            edad: parseInt(document.getElementById('edad').value),
+            direccion: document.getElementById('direccion').value,
+            telefono: document.getElementById('telefono').value,
+            correo: document.getElementById('correo').value,
             tipoCuenta: document.getElementById('tipoCuenta').value,
-            saldoInicial: parseFloat(document.getElementById('saldoInicial').value),
-            password: pass
+            saldo: parseFloat(document.getElementById('saldoInicial').value),
+            password: pass,
+            rol: "CLIENTE",
+            estado: "ACTIVA"
         };
 
         try {
-            // ESTO ES EL FETCH: Envía los datos a tu Spring Boot
             const res = await fetch('http://localhost:8080/api/cuentas', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -108,21 +129,19 @@
             });
 
             if(res.ok) {
-                // Alerta de éxito profesional
                 Swal.fire({
                     icon: 'success',
                     title: '¡Cuenta Creada!',
-                    text: 'Tu solicitud en THE BANK ha sido procesada con éxito. Ya puedes iniciar sesión.',
-                    confirmButtonText: 'Aceptar',
+                    text: 'Tu solicitud en THE BANK ha sido procesada con éxito.',
                     confirmButtonColor: '#004a8e'
-                }).then(() => {
-                    window.close(); // Se cierra la pestaña solo cuando el usuario da clic en Aceptar
-                });
+                }).then(() => { window.close(); });
             } else {
-                Swal.fire('Error', 'No se pudo conectar con el servidor', 'error');
+                // Esto captura el error 400 y te muestra el mensaje de validación de Java
+                const errorData = await res.json();
+                Swal.fire('Error de Validación', errorData.message || 'Verifica los datos ingresados', 'error');
             }
         } catch (error) {
-            Swal.fire('Error', 'El servidor de Spring Boot no está encendido', 'error');
+            Swal.fire('Error', 'El servidor no responde', 'error');
         }
     });
 </script>

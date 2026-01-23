@@ -37,6 +37,10 @@ public class CuentaBancariaDTO {
     @NotBlank(message = "El numero telefònico es obligatorio")
     private String telefono;
 
+    @NotBlank(message = "Ingrese la contraseña")
+    @NotNull
+    private String password;
+
     @NotBlank(message = "El correo electrònico es obligatorio")
     public String correo;
 

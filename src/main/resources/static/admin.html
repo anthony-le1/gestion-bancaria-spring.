@@ -163,7 +163,6 @@
         document.getElementById('totalCuentas').innerText = cuentas.length;
     }
 
-    // Reemplaza tus funciones anteriores por estas:
 
     async function toggleEstado(numero, estadoActual) {
         const nuevoEstado = estadoActual === 'ACTIVA' ? 'INACTIVA' : 'ACTIVA';
@@ -201,6 +200,56 @@
                 window.location.href = 'index.html';
             }
         });
+    }
+    // Función para descargar el PDF
+    function verPDF(numero) {
+        const url = `http://localhost:8080/api/cuentas/exportar-pdf/${numero}`;
+        console.log("Llamando a:", url);
+        window.open(url, '_blank');
+    }
+    // 1. Función para pedir los nuevos datos (Actualizar)
+    async function abrirModalEditar(numero, direccionActual, telefonoActual, correoActual) {
+        const { value: formValues } = await Swal.fire({
+            title: `Editar Datos - Cuenta ${numero}`,
+            html:
+                `<label class="small fw-bold">Dirección</label><input id="swal-dir" class="swal2-input" value="${direccionActual}">` +
+                `<label class="small fw-bold">Teléfono</label><input id="swal-tel" class="swal2-input" value="${telefonoActual}">` +
+                `<label class="small fw-bold">Correo</label><input id="swal-email" class="swal2-input" value="${correoActual}">`,
+            focusConfirm: false,
+            showCancelButton: true,
+            confirmButtonText: 'Guardar Cambios',
+            preConfirm: () => {
+                return {
+                    direccion: document.getElementById('swal-dir').value,
+                    telefono: document.getElementById('swal-tel').value,
+                    correo: document.getElementById('swal-email').value
+                }
+            }
+        });
+
+        if (formValues) {
+            enviarActualizacion(numero, formValues);
+        }
+    }
+
+    // 2. Función que hace el PUT al Backend
+    async function enviarActualizacion(numero, datos) {
+        try {
+            const res = await fetch(`${API_URL}/${numero}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(datos) // Enviamos el JSON al DTO
+            });
+
+            if (res.ok) {
+                Swal.fire('¡Éxito!', 'Los datos han sido actualizados.', 'success');
+                cargarTodasCuentas();
+            } else {
+                Swal.fire('Error', 'No se pudieron actualizar los datos', 'error');
+            }
+        } catch (error) {
+            console.error("Error al actualizar:", error);
+        }
     }
 
     async function eliminarCuenta(num) {

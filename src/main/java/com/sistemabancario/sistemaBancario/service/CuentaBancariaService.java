@@ -129,31 +129,35 @@ public class CuentaBancariaService implements ICuentaBancariaService{
     @Override
     public CuentaBancariaDTO crearCuenta(CuentaBancariaDTO cuentaDTO){
 
-        // 1. Validar edad
+        // Validar edad
         if (cuentaDTO.getEdad() < 18) {
             throw new DatosInvalidosException("El cliente debe ser mayor de edad.");
         }
 
-        // 2. Generación de Número Único de cuenta
+        //Validacion Límite de 3 cuentas (2 ahorros, 1 corriente)
+        List<CuentaBancaria> cuentasDelCliente = cuentaBancariaRepository.findByCliente_NombreIgnoreCase(cuentaDTO.getNombreCliente());
+
+        long ahorros = cuentasDelCliente.stream().filter(c -> c.getTipoCuenta().equalsIgnoreCase("AHORROS")).count();
+        long corriente = cuentasDelCliente.stream().filter(c -> c.getTipoCuenta().equalsIgnoreCase("CORRIENTE")).count();
+
+        if (cuentaDTO.getTipoCuenta().equalsIgnoreCase("AHORROS") && ahorros >= 2) {
+            throw new DatosInvalidosException("Límite alcanzado: Un cliente solo puede tener 2 cuentas de Ahorros.");
+        }
+        if (cuentaDTO.getTipoCuenta().equalsIgnoreCase("CORRIENTE") && corriente >= 1) {
+            throw new DatosInvalidosException("Límite alcanzado: Un cliente solo puede tener 1 cuenta Corriente.");
+        }
+
+        //Generación de Número Único de cuenta
         String numeroGenerado;
         do {
             numeroGenerado = generarNumeroAleatorio();
         } while (cuentaBancariaRepository.existsByNumeroCuenta(numeroGenerado));
 
-        // Asignamos el numero de cuenta
+        //Asignamos el numero de cuenta
         cuentaDTO.setNumeroCuenta(numeroGenerado);
 
-        // 3. Validar si ya tiene el mismo numero de cuenta
-        boolean yaTieneEseTipo = cuentaBancariaRepository.findByCliente_NombreIgnoreCase(cuentaDTO.getNombreCliente())
-                .stream()
-                .anyMatch(c -> c.getTipoCuenta().equalsIgnoreCase(cuentaDTO.getTipoCuenta()));
 
-        if (yaTieneEseTipo) {
-            throw new ResourceNotFoundException("El cliente " + cuentaDTO.getNombreCliente() +
-                    " ya posee una cuenta de tipo " + cuentaDTO.getTipoCuenta());
-        }
-
-        // 4. Mapeo, Guardado y Retorno
+        //Mapeo, Guardado y Retorno
         CuentaBancaria entidad = cuentaBancariaMapper.toEntity(cuentaDTO);
         CuentaBancaria guardada = cuentaBancariaRepository.save(entidad);
 
