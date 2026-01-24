@@ -42,7 +42,7 @@
             </div>
             <div class="col-md-3">
                 <label class="small fw-bold">CÉDULA (USUARIO)</label>
-                <input type="text" id="cedula" class="form-control" required>
+                <input type="text" id="cedula" class="form-control" maxlength="10" pattern="\d{10}" title="Debe tener 10 dígitos" required>
             </div>
             <div class="col-md-3">
                 <label class="small fw-bold">EDAD</label>
@@ -54,7 +54,7 @@
             </div>
             <div class="col-md-6">
                 <label class="small fw-bold">TELÉFONO</label>
-                <input type="text" id="telefono" class="form-control" placeholder="0999999999" required>
+                <input type="text" id="telefono" class="form-control" placeholder="0999999999" maxlength="10" pattern="\d{10}" title="Debe tener 10 digitos" required>
             </div>
             <div class="col-md-12">
                 <label class="small fw-bold">DIRECCIÓN DOMICILIARIA</label>
@@ -77,7 +77,7 @@
             </div>
             <div class="col-md-6">
                 <label class="small fw-bold">CREAR CONTRASEÑA</label>
-                <input type="password" id="password" class="form-control" placeholder="Mínimo 8 caracteres" required>
+                <input type="password" id="password" class="form-control" placeholder="Mínimo 8 caracteres" minlength="8" required>
             </div>
             <div class="col-md-6">
                 <label class="small fw-bold">CONFIRMAR CONTRASEÑA</label>
@@ -94,17 +94,26 @@
     document.getElementById('formRegistro').addEventListener('submit', async (e) => {
         e.preventDefault();
 
+        const cedula = document.getElementById('cedula').value;
+        const telefono = document.getElementById('telefono').value;
         const pass = document.getElementById('password').value;
         const confirm = document.getElementById('confirmPassword').value;
 
         // Validación de contraseñas con SweetAlert
-        if(pass !== confirm) {
+        if (cedula.length !== 10) {
+            return Swal.fire('Error', 'La cédula debe tener exactamente 10 dígitos', 'error');
+        }
+        if(pass !== confirm && pass.length < 8) {
             return Swal.fire({
                 icon: 'error',
                 title: 'Error de Seguridad',
                 text: 'Las contraseñas no coinciden. Por favor, verifica.',
                 confirmButtonColor: '#004a8e'
             });
+        }
+        if (telefono.length > 10) {
+            Swal.fire('Error', 'El teléfono no puede tener más de 10 dígitos', 'error');
+            return;
         }
 
         const data = {

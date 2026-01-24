@@ -20,7 +20,7 @@ import java.util.Map;
 @RequestMapping("/api/cuentas")
 @RequiredArgsConstructor //Inyeccion de dependencias por constructor via lombook
 @CrossOrigin(origins = "*") //Permite que React (frontend) de conecte al BackEnd
-public class    CuentaBancariaController {
+public class   CuentaBancariaController {
     //Inyeccion de dependencias
     private final ICuentaBancariaService cuentaBancariaService;
 
@@ -119,7 +119,14 @@ public class    CuentaBancariaController {
         String headerValue = "attachment; filename=Estado_Cuenta_" + numeroCuenta + ".pdf";
         response.setHeader(headerKey, headerValue);
 
-        // Pasamos el estado real al servicio
-        pdfService.exportar(response, cuenta.getNombreCliente(), cuenta.getNumeroCuenta(), cuenta.getSaldo(), cuenta.getEstado());
+        pdfService.exportar(
+                response,
+                cuenta.getNombreCliente(),
+                cuenta.getNumeroCuenta(),
+                cuenta.getSaldo(),
+                cuenta.getEstado(),
+                cuenta.getDireccion(),
+                cuenta.getCorreo()
+        );
     }
 }

@@ -97,24 +97,25 @@ public class CuentaBancariaService implements ICuentaBancariaService{
                 .orElseThrow(() -> new RuntimeException("Cuenta no encontrada"));
 
         //Datos que el Admin puede corregir
+        if (dto.getDireccion() != null) {
+            cuentaExistente.setDireccion(dto.getDireccion()); // Campo de la entidad Cuenta
+        }
         if (cuentaExistente.getCliente() != null) {
             Cliente c = cuentaExistente.getCliente();
-
-            // CORRECCIONES PERMITIDAS
+            if (dto.getDireccion() != null) {
+                c.setDireccion(dto.getDireccion());
+            }
             c.setNombre(dto.getNombreCliente());
-            c.setDireccion(dto.getDireccion());
             c.setTelefono(dto.getTelefono());
             c.setCorreo(dto.getCorreo());
-
         }
-
         CuentaBancaria cuentaActualizada = cuentaBancariaRepository.save(cuentaExistente);
         return cuentaBancariaMapper.toDTO(cuentaActualizada);
     }
 
     @Override
     public CuentaBancariaDTO autenticarCliente(String cedula, String password) {
-        // Buscamos al cliente por cédula (debes tener este método en tu repo)
+        // Buscamos al cliente por cédula
         return cuentaBancariaRepository.findByClienteCedula(cedula)
                 .filter(cuenta -> cuenta.getPassword().equals(password)) // Verificamos clave
                 .map(cuenta -> {
@@ -132,6 +133,19 @@ public class CuentaBancariaService implements ICuentaBancariaService{
         // Validar edad
         if (cuentaDTO.getEdad() < 18) {
             throw new DatosInvalidosException("El cliente debe ser mayor de edad.");
+        }
+        // Validación de Cédula
+        if (cuentaDTO.getCedula() == null || cuentaDTO.getCedula().length() != 10) {
+            throw new DatosInvalidosException("La cédula debe tener exactamente 10 dígitos.");
+        }
+        // Validación de Teléfono
+        if (cuentaDTO.getTelefono() != null && cuentaDTO.getTelefono().length() > 10) {
+            throw new DatosInvalidosException("El teléfono no puede exceder los 10 dígitos.");
+        }
+
+        // Validación de Contraseña
+        if (cuentaDTO.getPassword() == null || cuentaDTO.getPassword().length() < 8) {
+            throw new DatosInvalidosException("La contraseña debe tener al menos 8 caracteres.");
         }
 
         //Validacion Límite de 3 cuentas (2 ahorros, 1 corriente)
@@ -180,18 +194,35 @@ public class CuentaBancariaService implements ICuentaBancariaService{
 
     @Override
     public CuentaBancariaDTO consultarSaldo(String numeroCuenta){
-        //Buscamos la entidad
-        CuentaBancaria cuenta = cuentaBancariaRepository.findByNumeroCuenta(numeroCuenta).orElseThrow(() -> new ResourceNotFoundException("Cuenta" + numeroCuenta + " no existe."));
-        return   cuentaBancariaMapper.toDTO(cuenta);
+        CuentaBancaria cuenta = cuentaBancariaRepository.findByNumeroCuenta(numeroCuenta)
+                .orElseThrow(() -> new ResourceNotFoundException("Cuenta " + numeroCuenta + " no existe."));
+
+        CuentaBancariaDTO dto = cuentaBancariaMapper.toDTO(cuenta);
+
+        if (cuenta.getCliente() != null) {
+            dto.setDireccion(cuenta.getCliente().getDireccion());
+            dto.setCorreo(cuenta.getCliente().getCorreo());
+        }
+
+        return dto;
     }
 
     @Override
     public List<CuentaBancariaDTO> listarTodas(){
-        //Aqui buscamos todas las entidades en la base de datos
         List<CuentaBancaria> cuentas = cuentaBancariaRepository.findAll();
-
-        //Convertimos la lista de entidades a lista de DTO usando el mapper
-        return cuentas.stream().map(cuentaBancariaMapper::toDTO).toList();
+        return cuentas.stream().map(cuenta -> {
+            CuentaBancariaDTO dto = cuentaBancariaMapper.toDTO(cuenta);
+            //Si no tiene direccion, la sacamos de la cuenta
+            if(dto.getDireccion() == null || dto.getDireccion().isEmpty()) {
+                dto.setDireccion(cuenta.getDireccion());
+            }
+            if(cuenta.getCliente() != null) {
+                dto.setDireccion(cuenta.getCliente().getDireccion());
+                dto.setCorreo(cuenta.getCliente().getCorreo());
+                dto.setCedula(cuenta.getCliente().getCedula());
+            }
+            return dto;
+        }).toList();
     }
 
     @Override
@@ -218,7 +249,4 @@ public class CuentaBancariaService implements ICuentaBancariaService{
 
         cuentaBancariaRepository.delete(cuenta);
     }
-
-
-
 }
