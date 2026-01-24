@@ -12,6 +12,8 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class CuentaBancariaDTO {
 
+    private Long id;
+
     @NotBlank(message = "El nombre del cliente es obligatorio")
     private String nombreCliente;
 

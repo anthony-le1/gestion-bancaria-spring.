@@ -1,6 +1,7 @@
 package com.sistemabancario.sistemaBancario.controller;
 
 import com.sistemabancario.sistemaBancario.dto.CuentaBancariaDTO;
+import com.sistemabancario.sistemaBancario.exceptions.DatosInvalidosException;
 import com.sistemabancario.sistemaBancario.service.ICuentaBancariaService;
 import com.sistemabancario.sistemaBancario.service.estadoCuentaPDF;
 import jakarta.servlet.http.HttpServletResponse;
@@ -19,13 +20,15 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/cuentas")
 @RequiredArgsConstructor //Inyeccion de dependencias por constructor via lombook
-@CrossOrigin(origins = "*") //Permite que React (frontend) de conecte al BackEnd
+    @CrossOrigin(origins = "*") //Permite que React (frontend) de conecte al BackEnd
 public class   CuentaBancariaController {
     //Inyeccion de dependencias
     private final ICuentaBancariaService cuentaBancariaService;
 
     @Autowired
     private estadoCuentaPDF estadoCuentaPDF;
+
+
 
     //Endpoint para consultar sald o (GET)
     @GetMapping("/saldo/{numeroCuenta}")
@@ -42,6 +45,12 @@ public class   CuentaBancariaController {
 
         cuentaBancariaService.depositar(numero, monto);
         return ResponseEntity.ok("Depòsito realizado con exito"); //Devolvemos un mensaje 200 ok
+    }
+
+    //buscar por ID
+    @GetMapping("/{id}")
+    public ResponseEntity<CuentaBancariaDTO> obtenerPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(cuentaBancariaService.buscarPorId(id));
     }
 
     @PostMapping("/transferir")
@@ -69,6 +78,10 @@ public class   CuentaBancariaController {
     //EndPoint para activar o desactivar una cuenta.
     @PatchMapping("/{numeroCuenta}/estado")
     public ResponseEntity<String> cambiarEstado(@PathVariable String numeroCuenta, @RequestParam String nuevoEstado) {
+        if (!nuevoEstado.equals("ACTIVA") && !nuevoEstado.equals("INACTIVA")) {
+            throw new DatosInvalidosException("El estado '" + nuevoEstado + "' no es válido. Use ACTIVA o INACTIVA.");
+        }
+
         cuentaBancariaService.cambiarEstado(numeroCuenta, nuevoEstado);
         return ResponseEntity.ok("Estado actualizado");
     }
@@ -80,10 +93,9 @@ public class   CuentaBancariaController {
     }
 
     @DeleteMapping("/{numeroCuenta}")
-    public ResponseEntity<Void> eliminarCuenta (@PathVariable String numeroCuenta) {
+    public ResponseEntity<String> eliminarCuenta (@PathVariable String numeroCuenta) {
         cuentaBancariaService.eliminarCuenta(numeroCuenta);
-        //Aqui implemnetamos un mensaje 204 para mostrar un DELETE exitoso
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/login")

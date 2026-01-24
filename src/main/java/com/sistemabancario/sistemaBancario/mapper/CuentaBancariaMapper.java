@@ -14,6 +14,7 @@ public class CuentaBancariaMapper {
 
 
         CuentaBancariaDTO dto = new CuentaBancariaDTO();
+        dto.setId(cuenta.getId());
         dto.setNumeroCuenta(cuenta.getNumeroCuenta());
         dto.setDireccion(cuenta.getDireccion());
         dto.setSaldo(cuenta.getSaldo());

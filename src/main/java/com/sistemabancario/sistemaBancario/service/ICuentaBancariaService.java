@@ -9,6 +9,7 @@ import java.util.List;
 
 public interface ICuentaBancariaService {
     CuentaBancariaDTO crearCuenta(CuentaBancariaDTO cuentaDTO);
+    CuentaBancariaDTO buscarPorId(Long id);
 
     CuentaBancariaDTO consultarSaldo(String numeroCuenta);
     void depositar(String numeroCuenta, BigDecimal monto);

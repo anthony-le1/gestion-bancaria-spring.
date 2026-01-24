@@ -177,6 +177,14 @@ public class CuentaBancariaService implements ICuentaBancariaService{
 
         return cuentaBancariaMapper.toDTO(guardada);
     }
+    @Override
+    public CuentaBancariaDTO buscarPorId(Long id) {
+        // Buscamos la entidad en el repositorio por su ID
+        CuentaBancaria cuenta = cuentaBancariaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Cuenta no encontrada con ID: " + id));
+
+        return cuentaBancariaMapper.toDTO(cuenta);
+    }
 
     //Generar cuenta aleatoria
     private String generarNumeroAleatorio() {
