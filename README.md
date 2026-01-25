@@ -1,24 +1,30 @@
-Sistema de gestion de Cuentas Bancaraias - API REST 
-Descripcion del Proyecto 
-Este sistema es una solución Backend desarrollada con spring boot para gestionar la información financiera de un banco.
-**Arquitectura**: Modelo en capas Controller -> Service -> Repository
-**Base de Datos:** H2 Database
-**Validaciones:** Bean Validation
+# Sistema de Gestion de Cuentas Bancarias - THE BANK
 
-Atributos de la Entidad (Cuenta Bancaria)
-**ID:** Autogenerado (Long).
-**Número de Cuenta:** Cadena de 10 dígitos (@NotBlank, @Size).
-**Titular:** Nombre del dueño de la cuenta (@NotBlank).
-**Saldo:** Valor numérico (@NotNull, @Min).
-**Tipo de Cuenta:** Ahorros o Corriente (@NotBlank).
-**Fecha de Apertura:** Fecha de registro (LocalDate).
+### Descripcion del Proyecto
+Solucion Backend desarrollada con Spring Boot para la gestion de servicios financieros. El sistema permite administrar cuentas bancarias, procesar transacciones de deposito y transferencia, y gestionar el estado operativo de los usuarios.
 
-Frontend (Interfaz de Usuario)
-La interfaz ha sido desarrollada con **React**, enfocándose en la experiencia de usuario y el diseño responsivo.
+### Arquitectura y Tecnologias
+* Backend: Java 121 / Spring Boot 4.1.0.
+* Patron de Diseño: Arquitectura multicapa (Controller, Service, Repository) con implementacion de DTOs y Mappers.
+* Base de Datos: H2 Database en modo archivo (file) para persistencia local.
+* Seguridad: Validaciones de integridad mediante Bean Validation.
+* Reportes: Generacion de estados de cuenta en formato PDF.
 
-**Tecnología:** React.js 
-**Comunicación:** Consumo de API REST mediante 
-**Componentes:**
-    * Tabla de visualización de cuentas.
-    * Formulario de registro con validaciones en tiempo real.
+### Endpoints de la API
+* Login: POST /api/cuentas/login.
+* Listado General: GET /api/cuentas.
+* Depositos: POST /api/cuentas/deposito.
+* Transferencias: POST /api/cuentas/transferir.
+* Gestion de Estado: PATCH /api/cuentas/{num}/estado.
+* Exportacion PDF: GET /api/cuentas/exportar-pdf/{num}.
+
+### Instrucciones para Ejecutar el Proyecto
+1. Importar el proyecto como Maven Project en IntelliJ IDEA.
+2. Asegurar la disponibilidad del puerto 8080.
+3. Ejecutar la clase SistemaBancarioApplication.java.
+4. Acceder a la consola H2 en: http://localhost:8080/h2-console.
+5. Configurar el JDBC URL en la consola H2 como: jdbc:h2:file:./data/sistema_bancario.
+
+### Frontend
+Interfaz desarrollada en React.js que consume la API REST para la visualizacion de datos y ejecucion de formularios de registro y operaciones financieras.
    
