@@ -4,7 +4,7 @@
 Solucion Backend desarrollada con Spring Boot para la gestion de servicios financieros. El sistema permite administrar cuentas bancarias, procesar transacciones de deposito y transferencia, y gestionar el estado operativo de los usuarios.
 
 ### Arquitectura y Tecnologias
-* Backend: Java 121 / Spring Boot 4.1.0.
+* Backend: Java 21 / Spring Boot 3.3.5
 * Patron de Diseño: Arquitectura multicapa (Controller, Service, Repository) con implementacion de DTOs y Mappers.
 * Base de Datos: H2 Database en modo archivo (file) para persistencia local.
 * Seguridad: Validaciones de integridad mediante Bean Validation.
