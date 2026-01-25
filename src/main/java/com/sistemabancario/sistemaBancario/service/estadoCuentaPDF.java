@@ -20,7 +20,7 @@ public class estadoCuentaPDF {
         Document documento = new Document(PageSize.A4);
         PdfWriter writer = PdfWriter.getInstance(documento, response.getOutputStream());
 
-        // --- MARCA DE AGUA (AL FONDO) ---
+        //MARCA DE AGUA
         writer.setPageEvent(new PdfPageEventHelper() {
             @Override
             public void onEndPage(PdfWriter writer, Document document) {
@@ -53,6 +53,9 @@ public class estadoCuentaPDF {
 
         tablaCliente.addCell(crearCelda("NÚMERO DE CUENTA:", Font.BOLD));
         tablaCliente.addCell(crearCelda(numero, Font.NORMAL));
+
+        tablaCliente.addCell(crearCelda("DIRECCIÓN:", Font.BOLD));
+        tablaCliente.addCell(crearCelda(Direccion != null ? Direccion : "No registrada", Font.NORMAL));
 
         tablaCliente.addCell(crearCelda("CORREO ELECTRÓNICO:", Font.BOLD));
         tablaCliente.addCell(crearCelda(correo != null ? correo : "No registrado", Font.NORMAL));

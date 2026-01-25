@@ -92,14 +92,9 @@ public class CuentaBancariaService implements ICuentaBancariaService{
 
     @Override
     public CuentaBancariaDTO actualizarDatosPersonales(String numeroCuenta, CuentaBancariaDTO dto) {
-        // 1. Buscamos la cuenta
         CuentaBancaria cuentaExistente = cuentaBancariaRepository.findByNumeroCuenta(numeroCuenta)
-                .orElseThrow(() -> new RuntimeException("Cuenta no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Cuenta no encontrada"));
 
-        //Datos que el Admin puede corregir
-        if (dto.getDireccion() != null) {
-            cuentaExistente.setDireccion(dto.getDireccion()); // Campo de la entidad Cuenta
-        }
         if (cuentaExistente.getCliente() != null) {
             Cliente c = cuentaExistente.getCliente();
             if (dto.getDireccion() != null) {
@@ -109,6 +104,7 @@ public class CuentaBancariaService implements ICuentaBancariaService{
             c.setTelefono(dto.getTelefono());
             c.setCorreo(dto.getCorreo());
         }
+
         CuentaBancaria cuentaActualizada = cuentaBancariaRepository.save(cuentaExistente);
         return cuentaBancariaMapper.toDTO(cuentaActualizada);
     }
@@ -220,10 +216,7 @@ public class CuentaBancariaService implements ICuentaBancariaService{
         List<CuentaBancaria> cuentas = cuentaBancariaRepository.findAll();
         return cuentas.stream().map(cuenta -> {
             CuentaBancariaDTO dto = cuentaBancariaMapper.toDTO(cuenta);
-            //Si no tiene direccion, la sacamos de la cuenta
-            if(dto.getDireccion() == null || dto.getDireccion().isEmpty()) {
-                dto.setDireccion(cuenta.getDireccion());
-            }
+
             if(cuenta.getCliente() != null) {
                 dto.setDireccion(cuenta.getCliente().getDireccion());
                 dto.setCorreo(cuenta.getCliente().getCorreo());

@@ -23,7 +23,6 @@ public class CuentaBancaria {
     private LocalDate fechaApertura;
     private String estado; //(Activa/Bloqueada)
     private String moneda;
-    private String Direccion;
     private String Telefono;
     private BigDecimal limiteDiario;
     private Double tasaInteres;

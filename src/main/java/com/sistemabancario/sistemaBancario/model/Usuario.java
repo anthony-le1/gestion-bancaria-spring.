@@ -21,5 +21,5 @@ public abstract class Usuario {
     private String password;
     private String rol; // "ADMIN" o "CLIENTE"
 
-    public abstract String obtenerTipoAcceso();
+    public abstract String obtenerTipoAcceso(); //obliga a que cada hijo defina su propia logica
 }

@@ -11,7 +11,6 @@ import lombok.*;
 @Table(name = "clientes")
 public class Cliente extends Usuario {
 
-    private String direccion;
     private String telefono;
     private String correo;
     @Override

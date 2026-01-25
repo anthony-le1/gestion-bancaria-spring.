@@ -16,7 +16,7 @@ public class CuentaBancariaMapper {
         CuentaBancariaDTO dto = new CuentaBancariaDTO();
         dto.setId(cuenta.getId());
         dto.setNumeroCuenta(cuenta.getNumeroCuenta());
-        dto.setDireccion(cuenta.getDireccion());
+        dto.setDireccion(cuenta.getCliente().getDireccion());
         dto.setSaldo(cuenta.getSaldo());
         dto.setTipoCuenta(cuenta.getTipoCuenta());
         dto.setEstado(cuenta.getEstado());
@@ -32,7 +32,7 @@ public class CuentaBancariaMapper {
             dto.setCedula(cuenta.getCliente().getCedula());
         }
         if (dto.getDireccion() == null) {
-            dto.setDireccion(cuenta.getDireccion());
+            dto.setDireccion(cuenta.getCliente().getDireccion());
         }
 
         return dto;
