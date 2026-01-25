@@ -1,6 +1,6 @@
 package com.sistemabancario.sistemaBancario.repository;
 
-import aQute.bnd.annotation.plugin.InternalPluginNamespace;
+
 import com.sistemabancario.sistemaBancario.model.CuentaBancaria;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
