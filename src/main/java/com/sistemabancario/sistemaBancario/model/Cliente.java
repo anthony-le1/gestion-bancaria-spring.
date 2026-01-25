@@ -15,6 +15,7 @@ public class Cliente extends Usuario {
     private String correo;
     @Override
     public String obtenerTipoAcceso() {
+
         return "ACCESO_CLIENTE";
     }
 }

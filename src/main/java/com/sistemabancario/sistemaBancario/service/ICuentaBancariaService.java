@@ -1,7 +1,6 @@
 package com.sistemabancario.sistemaBancario.service;
 
 import com.sistemabancario.sistemaBancario.dto.CuentaBancariaDTO;
-import com.sistemabancario.sistemaBancario.model.CuentaBancaria;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
