@@ -20,7 +20,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/cuentas")
 @RequiredArgsConstructor //Inyeccion de dependencias por constructor via lombook
-    @CrossOrigin(origins = "*") //Permite que React (frontend) de conecte al BackEnd
+@CrossOrigin(origins = "*") //Permite que React (frontend) de conecte al BackEnd
 public class   CuentaBancariaController {
     //Inyeccion de dependencias
     private final ICuentaBancariaService cuentaBancariaService;
