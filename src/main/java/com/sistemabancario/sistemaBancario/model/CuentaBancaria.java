@@ -21,17 +21,12 @@ public class CuentaBancaria {
     private String tipoCuenta; //(Ahorro/Corriente)
     private BigDecimal saldo;
     private LocalDate fechaApertura;
-    private String estado; //(Activa/Bloqueada)
-    private String moneda;
+    private String estado; //(ACTIVA/INACTIVA)
     private String Telefono;
-    private BigDecimal limiteDiario;
-    private Double tasaInteres;
     private String pin;
     private String Correo;
     @Column(name = "password")
     private String password;
-    private String sucursal;
-    private boolean tieneTarjeta;
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "cliente_id")
